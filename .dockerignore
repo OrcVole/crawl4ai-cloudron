@@ -9,3 +9,7 @@ CloudronVersions.json
 .scan-allowlist
 *.key
 credentials*
+.anonymize-list
+phase-notes
+*foundation*.md
+.env

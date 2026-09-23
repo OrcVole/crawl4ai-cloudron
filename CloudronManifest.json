@@ -5,12 +5,12 @@
   "packagerName": "OrcVole",
   "packagerUrl": "https://github.com/OrcVole/crawl4ai-cloudron",
   "contactEmail": "Most+github@OrcadianVole.com",
-  "version": "1.0.0",
-  "upstreamVersion": "0.9.3",
+  "version": "1.0.1",
+  "upstreamVersion": "0.9.4",
   "manifestVersion": 2,
   "minBoxVersion": "9.1.0",
   "website": "https://github.com/unclecode/crawl4ai",
-  "dockerImage": "ghcr.io/orcvole/crawl4ai-cloudron@sha256:50032ac737ef095ef80219a001155fc2c440c448fd676072774b2808ed66eda5",
+  "dockerImage": "ghcr.io/orcvole/crawl4ai-cloudron@sha256:267398b4c97686a4b52862cbaece4a50565327b704517d480659d6b897642eff",
   "tagline": "Web crawling and extraction API for language models",
   "description": "file://DESCRIPTION.md",
   "changelog": "file://CHANGELOG.md",
@@ -33,6 +33,6 @@
     "automation"
   ],
   "mediaLinks": [
-    "https://example.com/screenshot.png"
+    "https://raw.githubusercontent.com/OrcVole/crawl4ai-cloudron/main/screenshots/playground.png"
   ]
 }

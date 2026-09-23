@@ -1,2 +1,9 @@
+phase-notes/
+*foundation*.md
+.anonymize-list
+.env
+*.key
+credentials*
+.claude/
 *.pyc
 __pycache__/

@@ -121,6 +121,38 @@ else
     fail "a raw internal IP address was NOT refused: ${INTERNAL_RESULT:0:200}"
 fi
 
+# --- assertions 5a-5d: the other flows (gate 2). The artifact-writing endpoints are the ones
+#     that crashed at startup until CRAWL4AI_ARTIFACT_DIR was set, and the job queue is the only
+#     user of the relocated Redis, so "RUNNING" in supervisor proves neither on its own. ---------
+json_field() { python3 -c "import sys,json
+try: print(json.load(sys.stdin).get('$1',''))
+except Exception: print('')"; }
+for ep in screenshot pdf; do
+    R="$(curl -s -m 90 -X POST -H "Authorization: Bearer ${TOKEN}" -H 'Content-Type: application/json' -d '{"url":"https://example.com"}' "${BASE_URL}/${ep}" 2>/dev/null)"
+    if [[ "$(echo "$R" | json_field success)" == "True" && -n "$(echo "$R" | json_field artifact_id)" ]]; then
+        pass "/${ep} returned success with an artifact (writable artifact store)"
+    else
+        fail "/${ep} did not return an artifact: ${R:0:200}"
+    fi
+done
+JOB="$(curl -s -m 30 -X POST -H "Authorization: Bearer ${TOKEN}" -H 'Content-Type: application/json' -d '{"urls":["https://example.com"]}' "${BASE_URL}/crawl/job" 2>/dev/null | json_field task_id)"
+JOB_STATUS=""
+if [[ -n "${JOB}" ]]; then
+    for _ in $(seq 1 30); do
+        JOB_STATUS="$(curl -s -m 30 -H "Authorization: Bearer ${TOKEN}" "${BASE_URL}/crawl/job/${JOB}" 2>/dev/null | json_field status)"
+        [[ "${JOB_STATUS}" == "completed" || "${JOB_STATUS}" == "failed" ]] && break
+        sleep 2
+    done
+fi
+[[ "${JOB_STATUS}" == "completed" ]] && pass "a queued crawl job completed (Redis-backed queue works)" || fail "queued job did not complete (task '${JOB}', status '${JOB_STATUS}')"
+MCP_BODY="$(curl -s -m 5 -N -H "Authorization: Bearer ${TOKEN}" "${BASE_URL}/mcp/sse" 2>/dev/null | head -c 200)"
+MCP_NOAUTH="$(http_status "${BASE_URL}/mcp/sse")"
+if echo "${MCP_BODY}" | grep -q 'event: endpoint' && [[ "${MCP_NOAUTH}" == "401" ]]; then
+    pass "MCP /mcp/sse answers with the token and returns 401 without it"
+else
+    fail "MCP check failed (with token: '${MCP_BODY:0:80}', without token: ${MCP_NOAUTH})"
+fi
+
 # --- assertion 6: every application process runs as a non-root uid ----------------------------
 PROC_REPORT="$("${CRI}" exec "${APP}" sh -c "ps -eo user,cmd | grep -v -E '^USER|^root '" 2>/dev/null)"
 NON_ROOT_COUNT="$(echo "${PROC_REPORT}" | grep -c . || true)"

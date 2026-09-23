@@ -8,12 +8,12 @@
 
 # ARG documents which upstream release this digest was resolved from. The build is pinned by
 # DIGEST, not by this ARG or a tag: Docker Hub tags can be reassigned, so the digest below was
-# resolved from the v0.9.3 GitHub release with skopeo on 2026-09-23.
-ARG C4AI_VERSION=0.9.3
+# resolved from the v0.9.4 GitHub release (a security release) with skopeo on 2026-09-23.
+ARG C4AI_VERSION=0.9.4
 
 # Stage 1: upstream's own image. Source of /usr/local (Python 3.12.14 + the crawl4ai package),
 # /app (the API server), and the Playwright browser cache.
-FROM docker.io/unclecode/crawl4ai@sha256:84751dab794259db05d5bd4e5c766a8041a65f0554326e4516e620abdf2fa18b AS upstream
+FROM docker.io/unclecode/crawl4ai@sha256:9021b3cb5c6f12570bbcd5395638495e0a06969b3148e377b953d174af2ebc9b AS upstream
 
 # Stage 2: the Cloudron base image. This is the ONLY stage that ships.
 FROM cloudron/base:5.0.0@sha256:04fd70dbd8ad6149c19de39e35718e024417c3e01dc9c6637eaf4a41ec4e596c

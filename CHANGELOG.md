@@ -1,5 +1,14 @@
 # Changelog
 
+[1.0.1]
+
+- Update Crawl4AI to 0.9.4, a security release: it closes two SSRF paths that bypassed the
+  server's egress controls, and a trust-boundary bypass that could expose server environment
+  variables to an API client. Updating is recommended.
+- The app icon is now Crawl4AI's own mark, taken from the project's wordmark, replacing a
+  placeholder.
+- The store listing now shows a real screenshot instead of a placeholder.
+
 [1.0.0]
 
 - Initial package, wrapping Crawl4AI 0.9.3.
