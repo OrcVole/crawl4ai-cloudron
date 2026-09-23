@@ -50,6 +50,18 @@ RUN set -eux; \
     rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*; \
     redis-server --version
 
+# --- Deliberate exception to "unmodified" above (docs/decisions/0001-build-shape.md): a trivy
+# scan comparing this image against bare cloudron/base:5.1.0 (2026-09-23) found every CRITICAL
+# inherited unmodified from the base (unreachable: node-tar and Go stdlib TLS binaries we never
+# invoke), but three of upstream's own frozen Python packages carried real, fixed HIGH CVEs --
+# PyJWT (CVE-2026-32597, CVE-2026-48526), msgpack (GHSA-6v7p-g79w-8964), setuptools
+# (CVE-2025-47273). PyJWT is unreachable here too (start.sh forces security.jwt_enabled=False,
+# so nothing calls it), but the fix is one line and safe: bump in place, don't wait for upstream's
+# next image. Pure-Python packages only, no native rebuild risk; the build gate below still fails
+# the build if this broke anything.
+RUN /usr/local/bin/python3 -m pip install --no-cache-dir --upgrade \
+    "PyJWT>=2.13.0" "msgpack>=1.2.1" "setuptools>=78.1.1"
+
 # --- Build gate: fail the BUILD, not the first boot, if the copied tree does not import or the
 # server module does not construct. Mirrors wger's build-shape gate (docs/decisions/0001).
 RUN /usr/local/bin/python3 -c "import crawl4ai, playwright; print('crawl4ai', crawl4ai.__version__, 'import OK')"

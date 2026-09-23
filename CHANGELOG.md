@@ -1,5 +1,12 @@
 # Changelog
 
+[1.0.2]
+
+- Bump three of upstream's own bundled Python packages to close known HIGH-severity CVEs:
+  PyJWT (CVE-2026-32597, CVE-2026-48526), msgpack (GHSA-6v7p-g79w-8964), and setuptools
+  (CVE-2025-47273). PyJWT is not reachable in this package regardless, since JWT auth is forced
+  off; the others get the same fix out of caution. No other change.
+
 [1.0.1]
 
 - Update Crawl4AI to 0.9.4, a security release: it closes two SSRF paths that bypassed the
