@@ -5,7 +5,11 @@
 - Bump three of upstream's own bundled Python packages to close known HIGH-severity CVEs:
   PyJWT (CVE-2026-32597, CVE-2026-48526), msgpack (GHSA-6v7p-g79w-8964), and setuptools
   (CVE-2025-47273). PyJWT is not reachable in this package regardless, since JWT auth is forced
-  off; the others get the same fix out of caution. No other change.
+  off; the others get the same fix out of caution.
+- Remove pip from the runtime image. Nothing in the running app uses it, and its own vendored
+  copies of msgpack and setuptools still carried the fixed CVEs, so scanners kept reporting them.
+  The image now has no known fixable HIGH or CRITICAL issue in its own Python packages; what
+  remains is inherited unchanged from the Cloudron base image.
 
 [1.0.1]
 

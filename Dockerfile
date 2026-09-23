@@ -59,8 +59,16 @@ RUN set -eux; \
 # so nothing calls it), but the fix is one line and safe: bump in place, don't wait for upstream's
 # next image. Pure-Python packages only, no native rebuild risk; the build gate below still fails
 # the build if this broke anything.
+#
+# pip itself is then removed. Nothing at runtime calls it (crawl4ai's own "pip install ..." strings
+# are error-message hints only), and its vendored copies (pip/_vendor/vendor.txt lists msgpack
+# 1.1.2 and setuptools 70.3.0) kept the fixed CVEs visible to scanners after the real packages were
+# bumped. A package manager in a read-only runtime image is dead weight anyway.
 RUN /usr/local/bin/python3 -m pip install --no-cache-dir --upgrade \
-    "PyJWT>=2.13.0" "msgpack>=1.2.1" "setuptools>=78.1.1"
+    "PyJWT>=2.13.0" "msgpack>=1.2.1" "setuptools>=78.1.1" \
+ && /usr/local/bin/python3 -m pip uninstall -y pip \
+ && ! /usr/local/bin/python3 -c "import pip" 2>/dev/null \
+ && ! ls /usr/local/bin/pip* 2>/dev/null
 
 # --- Build gate: fail the BUILD, not the first boot, if the copied tree does not import or the
 # server module does not construct. Mirrors wger's build-shape gate (docs/decisions/0001).
