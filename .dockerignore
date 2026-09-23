@@ -1,0 +1,11 @@
+.git
+.gitignore
+docs
+phase-notes
+.claude
+README.md
+AGENTS.md
+CloudronVersions.json
+.scan-allowlist
+*.key
+credentials*

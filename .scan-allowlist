@@ -1,0 +1,7 @@
+# Fixed strings secret-scan may ignore. Each line is a REVIEWABLE CLAIM that the string is public by
+# design — never a way to quieten a real leak. Only ever list something already published on purpose.
+#
+# The declared Cloudron contactEmail. Every manifest must carry one and it is public by definition,
+# so the denylist matching it is correct behaviour and allowlisting it is the honest response.
+# Before 2026-08-09 meilisearch alone handled this, with bespoke code; now it is the shared mechanism.
+Most+github@OrcadianVole.com
