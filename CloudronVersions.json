@@ -43,6 +43,49 @@
             "creationDate": "Wed, 23 Sep 2026 13:50:29 GMT",
             "ts": 1790171429000,
             "publishState": "published"
+        },
+        "1.0.1": {
+            "manifest": {
+                "id": "io.github.orcvole.crawl4ai",
+                "title": "Crawl4AI",
+                "author": "OrcVole",
+                "packagerName": "OrcVole",
+                "packagerUrl": "https://github.com/OrcVole/crawl4ai-cloudron",
+                "contactEmail": "Most+github@OrcadianVole.com",
+                "version": "1.0.1",
+                "upstreamVersion": "0.9.4",
+                "manifestVersion": 2,
+                "minBoxVersion": "9.1.0",
+                "website": "https://github.com/unclecode/crawl4ai",
+                "dockerImage": "ghcr.io/orcvole/crawl4ai-cloudron@sha256:e7c29d80c973d5381efeb7c18cd9575e907291dd95c049240736c40065148f67",
+                "tagline": "Web crawling and extraction API for language models",
+                "description": "<upstream>0.9.4</upstream>\n\n# Crawl4AI\n\nCrawl4AI is an open-source web crawling and extraction API, built to feed clean data into\nlanguage models or automation workflows. It fetches a page with a real Chromium headless browser\nand returns the content as clean Markdown, raw HTML, a screenshot, or a PDF. The package exposes\nboth a REST API and an MCP endpoint, so AI agent tools can call it directly.\n\nEvery request requires an API token, generated automatically the first time the app starts. There\nis no way to use the service without it. Because the browser runs inside a container, its own\nsecurity sandbox cannot be enabled; this is the same situation every headless-browser app on\nCloudron is in (browserless included). The package compensates: the token is required on every\ncall, requests to addresses inside your server's own private network are refused by default, and\noptional scripting hooks are disabled.\n\nNothing here needs backing up beyond the API token itself: there is no separate database, and\ncrawl results are not kept.\n\nThis package includes software developed by UncleCode as part of the Crawl4AI project, licensed\nApache-2.0 with an attribution requirement (see NOTICE). It is a community package, not affiliated\nwith or officially supported by the Crawl4AI project.\n",
+                "changelog": "- Update Crawl4AI to 0.9.4, a security release: it closes two SSRF paths that bypassed the\n  server's egress controls, and a trust-boundary bypass that could expose server environment\n  variables to an API client. Updating is recommended.\n- The app icon is now Crawl4AI's own mark, taken from the project's wordmark, replacing a\n  placeholder.\n- The store listing now shows a real screenshot instead of a placeholder.\n- Rebuilt on `cloudron/base:5.1.0` (was `5.0.0`); no functional change, a newer Ubuntu 24.04 point\n  release with more OS security patches.\n",
+                "icon": "file://logo.png",
+                "iconUrl": "https://raw.githubusercontent.com/OrcVole/crawl4ai-cloudron/main/logo.png",
+                "postInstallMessage": "## API token\n\nEvery request needs an API token, seeded automatically at first start. Read it from\n`/app/data/.secrets/api-token`, using the Cloudron file manager or the app's web terminal:\n\n```bash\ncat /app/data/.secrets/api-token\n```\n\n## Try it\n\nFetch a page as Markdown:\n\n```bash\ncurl -X POST https://your-app-address/md \\\n  -H \"Authorization: Bearer YOUR_TOKEN\" \\\n  -H \"Content-Type: application/json\" \\\n  -d '{\"url\": \"https://example.com\"}'\n```\n\n## AI agent tools (MCP)\n\nThe app also exposes an MCP endpoint at `/mcp/sse` and `/mcp/ws`, using the same Bearer token.\n\n## Security note\n\nThe browser's own sandbox cannot be enabled inside a container. The API token and a default\nrefusal of internal network addresses are the safeguards in its place. If you deliberately need\nthe crawler to reach an address on your own internal network, see the README rather than changing\nthis here.\n\n## Concurrency and memory\n\nThe package caps concurrent page crawls at 10, lower than upstream's default of 40, because that\nis what fits safely inside the default memory limit. Raising it needs raising the app's memory\nlimit too; see the README.\n",
+                "httpPort": 11235,
+                "healthCheckPath": "/health",
+                "configurePath": "/",
+                "memoryLimit": 2147483648,
+                "addons": {
+                    "localstorage": {}
+                },
+                "optionalSso": false,
+                "tags": [
+                    "crawler",
+                    "scraper",
+                    "llm",
+                    "markdown",
+                    "automation"
+                ],
+                "mediaLinks": [
+                    "https://raw.githubusercontent.com/OrcVole/crawl4ai-cloudron/main/screenshots/playground.png"
+                ]
+            },
+            "creationDate": "Wed, 23 Sep 2026 16:04:22 GMT",
+            "ts": 1790179462000,
+            "publishState": "published"
         }
     }
 }
