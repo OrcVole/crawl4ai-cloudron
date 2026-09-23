@@ -10,7 +10,7 @@
   "manifestVersion": 2,
   "minBoxVersion": "9.1.0",
   "website": "https://github.com/unclecode/crawl4ai",
-  "dockerImage": "ghcr.io/orcvole/crawl4ai-cloudron@sha256:267398b4c97686a4b52862cbaece4a50565327b704517d480659d6b897642eff",
+  "dockerImage": "ghcr.io/orcvole/crawl4ai-cloudron@sha256:e7c29d80c973d5381efeb7c18cd9575e907291dd95c049240736c40065148f67",
   "tagline": "Web crawling and extraction API for language models",
   "description": "file://DESCRIPTION.md",
   "changelog": "file://CHANGELOG.md",

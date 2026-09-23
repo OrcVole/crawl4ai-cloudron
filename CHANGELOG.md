@@ -8,6 +8,8 @@
 - The app icon is now Crawl4AI's own mark, taken from the project's wordmark, replacing a
   placeholder.
 - The store listing now shows a real screenshot instead of a placeholder.
+- Rebuilt on `cloudron/base:5.1.0` (was `5.0.0`); no functional change, a newer Ubuntu 24.04 point
+  release with more OS security patches.
 
 [1.0.0]
 

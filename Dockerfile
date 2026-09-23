@@ -16,7 +16,11 @@ ARG C4AI_VERSION=0.9.4
 FROM docker.io/unclecode/crawl4ai@sha256:9021b3cb5c6f12570bbcd5395638495e0a06969b3148e377b953d174af2ebc9b AS upstream
 
 # Stage 2: the Cloudron base image. This is the ONLY stage that ships.
-FROM cloudron/base:5.0.0@sha256:04fd70dbd8ad6149c19de39e35718e024417c3e01dc9c6637eaf4a41ec4e596c
+# 5.1.0, not 5.0.0: same Ubuntu 24.04/glibc 2.39 ABI (build-shape gate's findings still hold), but
+# a newer Ubuntu point release (24.04.4, more OS security patches). crawl4ai does not use this
+# base's bundled Node (it is not on PATH by that route; see the COPY below), so the base's Node
+# 22 -> 24 bump is irrelevant here. Resolved with skopeo on 2026-09-23.
+FROM cloudron/base:5.1.0@sha256:1c0666c9abe9e2090d33686826d4e97769b799124573118d41e0d7485135748e
 
 ARG C4AI_VERSION
 LABEL org.opencontainers.image.version="${C4AI_VERSION}" \
