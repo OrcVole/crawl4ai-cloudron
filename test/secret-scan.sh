@@ -218,15 +218,14 @@ else
   fi
 
   # --- the inert /etc/ssh host keys: whitelist BY EXACT PATH, with a VISIBLE COUNT ---
-  # cloudron/base ships three inert SSH host keys. No sshd runs in the app and the Dockerfile never
-  # touches ssh, so they are noise, not a leak. Allow ONLY these exact paths, pinned by sha256, and
-  # print how many key files were found versus how many are pinned. A glob such as ssh_host_*_key
-  # would silently pass a real future leak; a count that does not match fails loudly. Re-verify the
-  # hashes whenever the base image digest changes.
+  # cloudron/base:5.0.0 shipped three inert SSH host keys (no sshd runs in the app and the
+  # Dockerfile never touches ssh, so they were noise, not a leak). cloudron/base:5.1.0 (2026-09-23)
+  # removed openssh-server and its host keys and moduli entirely -- confirmed by inspecting
+  # /etc/ssh in both base tags, not assumed. PINNED_SSH is therefore empty on this base; the
+  # found/pinned-ok/expected counts must all read 0. A glob such as ssh_host_*_key would silently
+  # pass a real future leak; a count that does not match fails loudly. Re-verify by inspecting
+  # /etc/ssh directly (not by trusting this comment) whenever the base image digest changes.
   declare -A PINNED_SSH=(
-    [/etc/ssh/ssh_host_ecdsa_key]=677458f83d985da3fd7cdd208e90e4eac09da5be205425a5f96a6242dc985c33
-    [/etc/ssh/ssh_host_ed25519_key]=0c575ce8d9ba487b05cc473fad4b0650fb950181028e6ac19796f86f56f22a7a
-    [/etc/ssh/ssh_host_rsa_key]=ae0ea8087e90baf138d277ca52b6cf47b5010adc0e5bd84236713eee1b85de85
   )
   ssh_listing="$("$CRI" run --rm --user 0 "${RUNFLAGS[@]}" --entrypoint /bin/bash "$IMAGE" \
                   -c 'for f in /etc/ssh/ssh_host_*_key; do [ -e "$f" ] && sha256sum "$f"; done' 2>/dev/null)"
