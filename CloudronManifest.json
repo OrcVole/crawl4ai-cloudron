@@ -32,5 +32,7 @@
     "markdown",
     "automation"
   ],
-  "mediaLinks": []
+  "mediaLinks": [
+    "https://example.com/screenshot.png"
+  ]
 }
