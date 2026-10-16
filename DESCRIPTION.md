@@ -1,4 +1,4 @@
-<upstream>0.9.4</upstream>
+<upstream>0.9.5</upstream>
 
 # Crawl4AI
 

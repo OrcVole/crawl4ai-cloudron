@@ -1,5 +1,23 @@
 # Changelog
 
+[1.0.3]
+
+- Base image cloudron/base 5.1.0 to 6.0.0 (Ubuntu 26.04). Python is still upstream's own 3.12
+  (shipped with the image, not the base's), the browser is still Playwright's Chromium, and the
+  package uses no Node from the base (base 6 has none). Chromium's system libraries come from
+  Playwright's own installer, which supports this Ubuntu release.
+- Update Crawl4AI to 0.9.5, a security release that closes six advisories in how the server
+  handles untrusted request bodies: a server-side request forgery path through the cache freshness
+  check, page JavaScript injection through `css_selector` and `wait_for`, a caller-chosen model in
+  `CosineStrategy` (not installed in this package), ReDoS through caller-supplied regexes, unbounded
+  delay fields, and Chromium launched with certificate checks off. Updating is recommended.
+- Pages with an invalid or self-signed TLS certificate are now refused, as the package's settings
+  always intended; before this release Chromium ignored certificate errors regardless.
+- Requests that set a regex pattern, a JavaScript `wait_for` or a `CosineStrategy` model name are now
+  refused with an error, by upstream's design.
+- Crawl4AI 0.9.5 prints a short Crawl4AI Cloud notice in the app log; it makes no network calls.
+  Adding `export CRAWL4AI_NO_CLOUD_NOTICE=1` to `/app/data/env` hides it.
+
 [1.0.2]
 
 - Bump three of upstream's own bundled Python packages to close known HIGH-severity CVEs:

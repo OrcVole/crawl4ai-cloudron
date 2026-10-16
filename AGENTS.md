@@ -8,7 +8,7 @@ the authority, not the docs.**
 
 Crawl4AI is an open-source web crawling and extraction API: it fetches a page with a real headless
 Chromium and returns Markdown, HTML, a screenshot, a PDF, or structured extraction, over a REST API
-and an MCP endpoint. This package wraps the upstream 0.9.3 release, copying its runtime onto
+and an MCP endpoint. This package wraps the upstream 0.9.5 release, copying its runtime onto
 `cloudron/base` (docs/decisions/0001), and adapts only the runtime environment, never the
 application itself.
 
@@ -63,8 +63,8 @@ tmpfs). No `persistentDirs`, no `backupCommand`.
 - **Health:** `healthCheckPath = /health`, upstream's own unauthenticated endpoint, answered
   directly by gunicorn (no separate nginx and no bootstrap delay: there is no database to
   migrate, so readiness is immediate).
-- **Build shape:** copy upstream's `/usr/local` (self-contained Python 3.12.14), `/app`, and the
-  Playwright browser cache onto `cloudron/base:5.0.0`, then `playwright install-deps chromium`
+- **Build shape:** copy upstream's `/usr/local` (self-contained Python 3.12.15), `/app`, and the
+  Playwright browser cache onto `cloudron/base:6.0.0`, then `playwright install-deps chromium`
   and install `redis-server` from apt. Proven by a build-shape probe before this package was
   written (docs/decisions/0001).
 

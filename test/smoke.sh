@@ -106,7 +106,7 @@ NO_TOKEN_STATUS="$(http_status -X POST -H 'Content-Type: application/json' -d '{
 # kind of address the package must refuse -- it cannot be used for the "a crawl succeeds"
 # assertion. example.com is stable, IANA-run and made for exactly this kind of test.
 CRAWL_RESULT="$(curl -s -m 60 -X POST -H "Authorization: Bearer ${TOKEN}" -H 'Content-Type: application/json' -d '{"url":"https://example.com"}' "${BASE_URL}/md" 2>/dev/null)"
-if echo "${CRAWL_RESULT}" | grep -q "Example Domain"; then
+if echo "${CRAWL_RESULT}" | grep -q "This domain is for use in documentation examples"; then
     pass "authenticated crawl of a real external page returned its own content"
 else
     fail "authenticated crawl did not return real page content: ${CRAWL_RESULT:0:200}"

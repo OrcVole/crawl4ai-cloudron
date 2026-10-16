@@ -13,7 +13,7 @@ file manager, `gosu`, supervisor, the logging conventions) behaves the same ever
 
 ## Decision
 
-Copy upstream's runtime onto `cloudron/base:5.0.0`, pinned by digest, from the upstream image
+Copy upstream's runtime onto `cloudron/base:6.0.0` (moved from 5.0.0 and then 5.1.0; see CHANGELOG), pinned by digest, from the upstream image
 pinned by digest:
 
 - `/usr/local/bin`, `/usr/local/lib`, `/usr/local/include` from upstream. There are no name
@@ -22,7 +22,7 @@ pinned by digest:
 - `/app` from upstream to `/app/code/c4ai`, unmodified.
 - The Playwright browsers to `/app/code/ms-playwright`, with `PLAYWRIGHT_BROWSERS_PATH` set.
 - Chromium's system libraries from `playwright install-deps chromium`, which supports Ubuntu
-  24.04, and `redis-server` from the Redis apt source the base already configures.
+  24.04 and, measured 2026-10-16, resolves cleanly on 26.04 (the base-6 move), and `redis-server` from the Redis apt source the base already configures.
 
 Upstream's code is never patched. Configuration is a package-owned `config.yml` passed to the
 server (ADR 0005), not an edit to upstream's copy.

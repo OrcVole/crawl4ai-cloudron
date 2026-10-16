@@ -8,26 +8,26 @@
 
 # ARG documents which upstream release this digest was resolved from. The build is pinned by
 # DIGEST, not by this ARG or a tag: Docker Hub tags can be reassigned, so the digest below was
-# resolved from the v0.9.4 GitHub release (a security release) with skopeo on 2026-09-23.
-ARG C4AI_VERSION=0.9.4
+# resolved from the v0.9.5 GitHub release (a security release) with skopeo on 2026-10-16.
+ARG C4AI_VERSION=0.9.5
 
-# Stage 1: upstream's own image. Source of /usr/local (Python 3.12.14 + the crawl4ai package),
+# Stage 1: upstream's own image. Source of /usr/local (Python 3.12.15 + the crawl4ai package),
 # /app (the API server), and the Playwright browser cache.
-FROM docker.io/unclecode/crawl4ai@sha256:9021b3cb5c6f12570bbcd5395638495e0a06969b3148e377b953d174af2ebc9b AS upstream
+FROM docker.io/unclecode/crawl4ai@sha256:0b05666882bfb67f45d559a5b827839c54127b74aedd723f8ab338a3571b5fc9 AS upstream
 
 # Stage 2: the Cloudron base image. This is the ONLY stage that ships.
-# 5.1.0, not 5.0.0: same Ubuntu 24.04/glibc 2.39 ABI (build-shape gate's findings still hold), but
-# a newer Ubuntu point release (24.04.4, more OS security patches). crawl4ai does not use this
-# base's bundled Node (it is not on PATH by that route; see the COPY below), so the base's Node
-# 22 -> 24 bump is irrelevant here. Resolved with skopeo on 2026-09-23.
-FROM cloudron/base:5.1.0@sha256:1c0666c9abe9e2090d33686826d4e97769b799124573118d41e0d7485135748e
+# 6.0.0 (Ubuntu 26.04, glibc 2.43, resolved with skopeo on 2026-10-16). Moved from 5.1.0 by
+# estate/doctrine/base-6-migration.md. crawl4ai uses none of the base's own runtimes: Python comes
+# from the upstream image (copied under /usr/local, ahead of the base's python3.14 on PATH), and the
+# package never used the base's Node (base 6 has none, so nothing changes there).
+FROM docker.io/cloudron/base:6.0.0@sha256:9bed4c8fa880645f8e669041ee28febe941481d00e9445e3e5a5483cb541d09b
 
 ARG C4AI_VERSION
 LABEL org.opencontainers.image.version="${C4AI_VERSION}" \
       org.opencontainers.image.source="https://github.com/OrcVole/crawl4ai-cloudron"
 
-# No name clashes: the base's /usr/local/bin holds only gosu, and its Node lives under
-# /usr/local/node-22.14.0, not on PATH by that route. Upstream's python3 therefore becomes the
+# No name clashes: the base's /usr/local/bin holds only gosu (base 6 has no Node at all).
+# Upstream's python3 therefore becomes the
 # python3 this image runs, which is intended (docs/decisions/0001-build-shape.md).
 COPY --from=upstream /usr/local/bin/       /usr/local/bin/
 COPY --from=upstream /usr/local/lib/       /usr/local/lib/
@@ -72,7 +72,26 @@ RUN /usr/local/bin/python3 -m pip install --no-cache-dir --upgrade \
 
 # --- Build gate: fail the BUILD, not the first boot, if the copied tree does not import or the
 # server module does not construct. Mirrors wger's build-shape gate (docs/decisions/0001).
-RUN /usr/local/bin/python3 -c "import crawl4ai, playwright; print('crawl4ai', crawl4ai.__version__, 'import OK')"
+RUN /usr/local/bin/python3 -c "import crawl4ai, playwright; from crawl4ai.__version__ import __version__ as v; print('crawl4ai', v, 'import OK')"
+
+# --- Library gate (base-6-migration.md step 6b): every ELF file Chromium, its headless shell and
+# Playwright's bundled driver ship must resolve every shared library in THIS image. Measured
+# 2026-10-16: the only unresolved names anywhere in /usr/local and the browser cache were Python's
+# optional _tkinter (libtcl8.6, libtk8.6) and nis (libnsl.so.2) extensions, which neither base 5.1.0
+# nor base 6.0.0 resolved, so they are not regressions and are not used.
+RUN set -eu; \
+    bad=0; \
+    for f in $(find /app/code/ms-playwright /usr/local/lib/python3.12/site-packages/playwright/driver -type f \( -name '*.so' -o -name '*.so.*' -o -perm -u+x \)); do \
+      head -c4 "$f" | grep -q ELF || continue; \
+      if ldd "$f" 2>/dev/null | grep -q 'not found'; then echo "UNRESOLVED in $f:"; ldd "$f" | grep 'not found'; bad=1; fi; \
+    done; \
+    [ "$bad" = 0 ] && echo "ldd gate ok: browser binaries and Playwright driver fully resolved"
+
+# --- Runtime gate: launch headless Chromium through the server's own library path and load a local
+# file (no network). The bind mount keeps the gate script out of the shipped image.
+RUN --mount=type=bind,source=test/chromium-gate.py,target=/tmp/chromium-gate.py \
+    HOME=/tmp/gate-home CRAWL4AI_NO_CLOUD_NOTICE=1 /usr/local/bin/python3 /tmp/chromium-gate.py; \
+    rm -rf /tmp/gate-home
 
 # Package config (docs/decisions/0005): upstream's own config.yml loader reads
 # /app/code/c4ai/config.yml relative to server.py, so that path becomes a symlink into the
