@@ -15,6 +15,9 @@ ARG C4AI_VERSION=0.9.5
 # /app (the API server), and the Playwright browser cache.
 FROM docker.io/unclecode/crawl4ai@sha256:0b05666882bfb67f45d559a5b827839c54127b74aedd723f8ab338a3571b5fc9 AS upstream
 
+# Official Node.js 24.22.1 (security release 2026-10-20), glibc build; source of the replacement driver node.
+FROM docker.io/library/node:24.22.1-bookworm-slim@sha256:2dd9a4f758e173b65fee15388f7706af6fb01ef50cf7a2c0538711d67a6981ae AS officialnode
+
 # Stage 2: the Cloudron base image. This is the ONLY stage that ships.
 # 6.0.1 (Ubuntu 26.04, glibc 2.43; the security patch of 2026-10-21 over 6.0.0, which was resolved with
 # skopeo on 2026-10-16). Moved from 5.1.0 by
@@ -70,6 +73,20 @@ RUN /usr/local/bin/python3 -m pip install --no-cache-dir --upgrade \
  && /usr/local/bin/python3 -m pip uninstall -y pip \
  && ! /usr/local/bin/python3 -c "import pip" 2>/dev/null \
  && ! ls /usr/local/bin/pip* 2>/dev/null
+
+# --- Node.js security release (CVE-2026-111497 Brotli RCE, TLS hostname bypasses, CA store): Playwright
+# and Patchright each bundle their own node (24.21.0) in driver/. Replace both with the official 24.22.1
+# binary (stage "officialnode") and fail the build if either does not report it.
+COPY --from=officialnode /usr/local/bin/node /tmp/node-official
+RUN set -eu; \
+    for d in playwright patchright; do \
+      t=/usr/local/lib/python3.12/site-packages/$d/driver/node; \
+      [ -f "$t" ] || { echo "FATAL: $t missing"; exit 1; }; \
+      install -m 0755 /tmp/node-official "$t"; \
+      [ "$("$t" --version)" = "v24.22.1" ] || { echo "FATAL: $t is not v24.22.1"; exit 1; }; \
+      echo "gate: $d driver node $("$t" --version)"; \
+    done; \
+    rm -f /tmp/node-official
 
 # --- Build gate: fail the BUILD, not the first boot, if the copied tree does not import or the
 # server module does not construct. Mirrors wger's build-shape gate (docs/decisions/0001).

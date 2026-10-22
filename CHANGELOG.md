@@ -1,5 +1,9 @@
 # Changelog
 
+[1.0.5]
+
+- Node.js 24.21.0 to 24.22.1 (security release: CVE-2026-111497 Brotli remote code execution, TLS hostname-verification bypasses, updated CA store)
+
 [1.0.4]
 
 - Base image cloudron/base 6.0.0 to 6.0.1: Ubuntu security updates, including the removal of the
