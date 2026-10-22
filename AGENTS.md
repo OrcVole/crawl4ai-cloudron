@@ -64,7 +64,7 @@ tmpfs). No `persistentDirs`, no `backupCommand`.
   directly by gunicorn (no separate nginx and no bootstrap delay: there is no database to
   migrate, so readiness is immediate).
 - **Build shape:** copy upstream's `/usr/local` (self-contained Python 3.12.15), `/app`, and the
-  Playwright browser cache onto `cloudron/base:6.0.0`, then `playwright install-deps chromium`
+  Playwright browser cache onto `cloudron/base:6.0.1`, then `playwright install-deps chromium`
   and install `redis-server` from apt. Proven by a build-shape probe before this package was
   written (docs/decisions/0001).
 

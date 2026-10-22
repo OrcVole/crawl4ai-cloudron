@@ -13,7 +13,7 @@ file manager, `gosu`, supervisor, the logging conventions) behaves the same ever
 
 ## Decision
 
-Copy upstream's runtime onto `cloudron/base:6.0.0` (moved from 5.0.0 and then 5.1.0; see CHANGELOG), pinned by digest, from the upstream image
+Copy upstream's runtime onto `cloudron/base:6.0.1` (moved from 5.0.0, then 5.1.0, then 6.0.0; see CHANGELOG), pinned by digest, from the upstream image
 pinned by digest:
 
 - `/usr/local/bin`, `/usr/local/lib`, `/usr/local/include` from upstream. There are no name

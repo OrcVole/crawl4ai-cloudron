@@ -16,11 +16,12 @@ ARG C4AI_VERSION=0.9.5
 FROM docker.io/unclecode/crawl4ai@sha256:0b05666882bfb67f45d559a5b827839c54127b74aedd723f8ab338a3571b5fc9 AS upstream
 
 # Stage 2: the Cloudron base image. This is the ONLY stage that ships.
-# 6.0.0 (Ubuntu 26.04, glibc 2.43, resolved with skopeo on 2026-10-16). Moved from 5.1.0 by
+# 6.0.1 (Ubuntu 26.04, glibc 2.43; the security patch of 2026-10-21 over 6.0.0, which was resolved with
+# skopeo on 2026-10-16). Moved from 5.1.0 by
 # estate/doctrine/base-6-migration.md. crawl4ai uses none of the base's own runtimes: Python comes
 # from the upstream image (copied under /usr/local, ahead of the base's python3.14 on PATH), and the
 # package never used the base's Node (base 6 has none, so nothing changes there).
-FROM docker.io/cloudron/base:6.0.0@sha256:9bed4c8fa880645f8e669041ee28febe941481d00e9445e3e5a5483cb541d09b
+FROM docker.io/cloudron/base:6.0.1@sha256:7b1e729960c3ca312d26e886917ba89483241bba0219ff292858e10d9d5768ee
 
 ARG C4AI_VERSION
 LABEL org.opencontainers.image.version="${C4AI_VERSION}" \

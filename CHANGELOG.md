@@ -1,5 +1,10 @@
 # Changelog
 
+[1.0.4]
+
+- Base image cloudron/base 6.0.0 to 6.0.1: Ubuntu security updates, including the removal of the
+  compromised eMudhra emSign ECC Root CA - G3 from the trusted certificates.
+
 [1.0.3]
 
 - Base image cloudron/base 5.1.0 to 6.0.0 (Ubuntu 26.04). Python is still upstream's own 3.12
