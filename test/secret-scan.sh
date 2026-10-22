@@ -5,7 +5,7 @@
 # only defence against the drift that produced twelve different gates is a version stamp that CI can
 # compare against estate/templates/secret-scan.sh. Bump it when this file changes; never edit a
 # package's copy in place.
-SCAN_VERSION=2026-08-09.4
+SCAN_VERSION=2026-10-22.1
 #
 # WHY ONE COPY. Before 2026-08-09 this script existed in three generations across 18 packages: ten
 # scanned the built image, eight scanned only the repo, and the denylists ranged from 5 patterns to
@@ -190,8 +190,15 @@ else
     local ex=""
     [[ "$mode" == "E" ]] && ex="${VENDOR_EXCLUDES[*]}"   # anon/shape only; F keeps full reach
     [[ "$mode" == "F" ]] && ex="--exclude-dir=.git"
-    "$CRI" run --rm -i --user 0 "${RUNFLAGS[@]}" --entrypoint /bin/bash "$IMAGE" \
-      -c "grep -rIn${mode}H $ex -f - $* 2>/dev/null" < "$pf"
+    local out
+    out="$("$CRI" run --rm -i --user 0 "${RUNFLAGS[@]}" --entrypoint /bin/bash "$IMAGE" \
+      -c "grep -rIn${mode}H $ex -f - $* 2>/dev/null; echo __SCAN_RAN__" < "$pf")"
+    # Fail closed (2026-10-22.1): if the container never ran (engine busy, out of memory, a storage lock),
+    # the grep printed nothing and the scan used to read that as clean. A missing marker is now a finding.
+    if [[ "$out" != *__SCAN_RAN__* ]]; then
+      echo "IMAGE SCAN DID NOT RUN ($CRI run failed, mode $mode): refusing to pass vacuously"; return 0
+    fi
+    printf '%s\n' "$out" | grep -v '^__SCAN_RAN__$' || true
   }
   CRIT_DIRS="/app /etc /root /home /usr/local /opt"
   emit anon  "$(drop_runtime "$(img E "$ANON"  $CRIT_DIRS)")"
